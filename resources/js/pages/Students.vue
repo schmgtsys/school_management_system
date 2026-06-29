@@ -42,7 +42,10 @@
 
             <!-- Action column slot -->
             <template #actions="{ item }">
-              <button class="btn btn-sm btn-light border" @click="editStudent(item)">
+              <button class="btn btn-sm btn-light border me-1" @click="viewStudentDetails(item)">
+                <i class="bi-eye-fill text-info"></i>
+              </button>
+              <button class="btn btn-sm btn-light border me-1" @click="editStudent(item)">
                 <i class="bi-pencil-fill text-primary"></i>
               </button>
               <button class="btn btn-sm btn-light border" @click="deleteStudent(item)">
@@ -93,6 +96,40 @@
         <Button variant="primary" size="sm" @click="saveStudent">Save Student</Button>
       </template>
     </Modal>
+
+    <!-- View Student Details Modal -->
+    <Modal v-model="showViewModal" title="Student Profile Details" @close="showViewModal = false">
+      <div v-if="selectedStudent" class="text-dark">
+        <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+          <Avatar :name="selectedStudent.name" size="64" variant="primary" />
+          <div>
+            <h5 class="fw-bold mb-1">{{ selectedStudent.name }}</h5>
+            <span class="badge bg-success-subtle text-success border border-success">{{ selectedStudent.status }}</span>
+          </div>
+        </div>
+        <div class="row g-3">
+          <div class="col-6">
+            <span class="text-secondary small fw-medium d-block">Student ID</span>
+            <span class="fw-semibold font-monospace">{{ selectedStudent.studentId }}</span>
+          </div>
+          <div class="col-6">
+            <span class="text-secondary small fw-medium d-block">Email Address</span>
+            <span class="fw-semibold">{{ selectedStudent.email }}</span>
+          </div>
+          <div class="col-6">
+            <span class="text-secondary small fw-medium d-block">Classroom Group</span>
+            <span class="fw-semibold">{{ selectedStudent.class }}</span>
+          </div>
+          <div class="col-6">
+            <span class="text-secondary small fw-medium d-block">Parent/Guardian</span>
+            <span class="fw-semibold">{{ selectedStudent.parentName }}</span>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <Button variant="secondary" size="sm" @click="showViewModal = false">Close Profile</Button>
+      </template>
+    </Modal>
   </div>
 </template>
 
@@ -118,6 +155,9 @@ export default {
     const editingStudent = ref(false);
     const selectedIds = ref([]);
     const currentPage = ref(1);
+
+    const showViewModal = ref(false);
+    const selectedStudent = ref(null);
 
     const studentForm = ref({ name: '', email: '', class: 'Grade 10-A', status: 'Active' });
 
@@ -189,6 +229,11 @@ export default {
       currentPage.value = page;
     };
 
+    const viewStudentDetails = (student) => {
+      selectedStudent.value = student;
+      showViewModal.value = true;
+    };
+
     return {
       loading,
       searchQuery,
@@ -203,7 +248,10 @@ export default {
       deleteStudent,
       saveStudent,
       closeModal,
-      changePage
+      changePage,
+      showViewModal,
+      selectedStudent,
+      viewStudentDetails
     };
   }
 }

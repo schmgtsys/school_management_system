@@ -3,6 +3,14 @@
     <!-- Collapsible Sidebar -->
     <Sidebar />
 
+    <!-- Overlay backdrop for mobile when sidebar is open -->
+    <div 
+      v-if="!isSidebarCollapsed" 
+      class="d-lg-none position-fixed top-0 start-0 w-100 h-100" 
+      style="background: rgba(0, 0, 0, 0.4); z-index: 1025;" 
+      @click="closeSidebarOnMobile"
+    ></div>
+
     <!-- Main Workspace Container -->
     <div class="app-wrapper flex-grow-1" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
       <!-- Header Navigation -->
@@ -24,7 +32,7 @@
 </template>
 
 <script>
-import { computed } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 import { useAppStore } from '../stores/app';
 import Sidebar from '../components/Sidebar.vue';
 import Navbar from '../components/Navbar.vue';
@@ -37,8 +45,37 @@ export default {
     const appStore = useAppStore();
     const isSidebarCollapsed = computed(() => appStore.sidebarCollapsed);
 
+    let lastWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
+
+    const handleResize = () => {
+      const currentWidth = window.innerWidth;
+      if (currentWidth < 992 && lastWidth >= 992) {
+        appStore.setSidebarCollapsed(true);
+      } else if (currentWidth >= 992 && lastWidth < 992) {
+        appStore.setSidebarCollapsed(false);
+      }
+      lastWidth = currentWidth;
+    };
+
+    onMounted(() => {
+      window.addEventListener('resize', handleResize);
+      // Run once on mount to align initial window size
+      if (window.innerWidth < 992) {
+        appStore.setSidebarCollapsed(true);
+      }
+    });
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', handleResize);
+    });
+
+    const closeSidebarOnMobile = () => {
+      appStore.setSidebarCollapsed(true);
+    };
+
     return {
-      isSidebarCollapsed
+      isSidebarCollapsed,
+      closeSidebarOnMobile
     };
   }
 }

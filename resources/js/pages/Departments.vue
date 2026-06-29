@@ -19,12 +19,51 @@
               <span class="font-monospace fw-semibold">{{ item.budget }}</span>
             </template>
             <template #actions="{ item }">
-              <button class="btn btn-sm btn-light border" @click="showMockMsg"><i class="bi-pencil-fill text-primary"></i></button>
+              <button class="btn btn-sm btn-light border me-1" @click="viewDepartmentDetails(item)">
+                <i class="bi-eye-fill text-info"></i>
+              </button>
+              <button class="btn btn-sm btn-light border me-1" @click="showMockMsg">
+                <i class="bi-pencil-fill text-primary"></i>
+              </button>
+              <button class="btn btn-sm btn-light border" @click="showMockMsg">
+                <i class="bi-trash-fill text-danger"></i>
+              </button>
             </template>
           </DataTable>
         </Card>
       </div>
     </div>
+
+    <!-- View Department Details Modal -->
+    <Modal v-model="showViewModal" title="Department Overview Details" @close="showViewModal = false">
+      <div v-if="selectedDepartment" class="text-dark">
+        <div class="mb-4 pb-3 border-bottom">
+          <span class="badge bg-primary mb-2">Division Unit</span>
+          <h4 class="fw-bold mb-1">{{ selectedDepartment.name }}</h4>
+        </div>
+        <div class="row g-3">
+          <div class="col-6">
+            <span class="text-secondary small fw-medium d-block">Department Head</span>
+            <span class="fw-semibold">{{ selectedDepartment.head }}</span>
+          </div>
+          <div class="col-6">
+            <span class="text-secondary small fw-medium d-block">Annual Operating Budget</span>
+            <span class="fw-semibold font-monospace text-success">{{ selectedDepartment.budget }}</span>
+          </div>
+          <div class="col-6">
+            <span class="text-secondary small fw-medium d-block">Assigned Faculty Staff Count</span>
+            <span class="fw-semibold">{{ selectedDepartment.staffCount }} Employees</span>
+          </div>
+          <div class="col-6">
+            <span class="text-secondary small fw-medium d-block">Status</span>
+            <span class="badge bg-success-subtle text-success border border-success">Active Division</span>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <Button variant="secondary" size="sm" @click="showViewModal = false">Close Overview</Button>
+      </template>
+    </Modal>
   </div>
 </template>
 
@@ -34,12 +73,16 @@ import PageHeader from '../components/PageHeader.vue';
 import Card from '../components/Card.vue';
 import DataTable from '../components/DataTable.vue';
 import Button from '../components/Button.vue';
+import Modal from '../components/Modal.vue';
 
 export default {
   name: 'Departments',
-  components: { PageHeader, Card, DataTable, Button },
+  components: { PageHeader, Card, DataTable, Button, Modal },
   setup() {
     const loading = ref(false);
+    const showViewModal = ref(false);
+    const selectedDepartment = ref(null);
+
     const columns = [
       { key: 'name', label: 'Department Name', sortable: true },
       { key: 'head', label: 'Department Head' },
@@ -54,9 +97,14 @@ export default {
       { id: 4, name: 'Administration & Admissions', head: 'Sarah Jenkins', staffCount: 6, budget: '$75,000' }
     ]);
 
+    const viewDepartmentDetails = (dept) => {
+      selectedDepartment.value = dept;
+      showViewModal.value = true;
+    };
+
     const showMockMsg = () => alert('Action simulated (UI Only).');
 
-    return { loading, columns, departments, showMockMsg };
+    return { loading, columns, departments, showMockMsg, showViewModal, selectedDepartment, viewDepartmentDetails };
   }
 }
 </script>

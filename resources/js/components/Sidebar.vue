@@ -1,12 +1,10 @@
 <template>
   <aside class="app-sidebar" :class="{ 'collapsed': isCollapsed }">
     <!-- Sidebar Header -->
-    <div class="sidebar-header d-flex align-items-center justify-content-between">
+    <div class="sidebar-header d-flex align-items-center" :class="isCollapsed ? 'justify-content-center' : 'justify-content-between'">
       <div 
+        v-if="!isCollapsed"
         class="d-flex align-items-center gap-2 overflow-hidden" 
-        :class="{ 'cursor-pointer': isCollapsed }"
-        @click="isCollapsed ? toggleSidebar() : null"
-        :title="isCollapsed ? 'Expand Sidebar' : ''"
       >
         <div class="bg-primary text-white rounded-3 p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; min-width: 40px;">
           <i class="bi-mortarboard-fill fs-4"></i>
@@ -15,9 +13,9 @@
           EduSphere
         </div>
       </div>
-      <!-- Toggle button inside sidebar (visible on desktop) -->
-      <button v-if="!isCollapsed" @click="toggleSidebar" class="btn btn-link text-white text-opacity-75 p-0 d-none d-lg-block border-0 shadow-none">
-        <i class="bi" :class="isCollapsed ? 'bi-text-indent-left' : 'bi-text-indent-right'" style="font-size: 1.25rem;"></i>
+      <!-- Toggle button inside sidebar -->
+      <button @click="toggleSidebar" class="btn btn-link text-white text-opacity-75 p-0 border-0 shadow-none">
+        <i class="bi" :class="isCollapsed ? 'bi-list' : 'bi-text-indent-right'" style="font-size: 1.5rem;"></i>
       </button>
     </div>
 
@@ -39,7 +37,7 @@
     </div>
 
     <!-- Sidebar Navigation Menu -->
-    <div class="sidebar-menu overflow-y-auto">
+    <div class="sidebar-menu overflow-y-auto" @scroll="closeFloatingMenus">
       <ul class="nav flex-column">
         <!-- Dashboard -->
         <li class="nav-item">
@@ -89,7 +87,7 @@
           <a 
             class="nav-link d-flex align-items-center" 
             href="#" 
-            @click.prevent="toggleSubmenu('academic')"
+            @click.prevent="toggleSubmenu('academic', $event)"
             :class="{ 'active': isSubmenuActive('academic') }"
           >
             <i class="bi-journal-bookmark-fill"></i>
@@ -141,9 +139,9 @@
           <!-- Floating Dropdown Menu (when sidebar is collapsed) -->
           <ul 
             v-else
-            class="dropdown-menu border-0 shadow-lg py-2" 
+            class="dropdown-menu shadow-lg py-2" 
             :class="{ show: expandedMenus.academic }"
-            style="position: absolute; left: var(--sidebar-collapsed-width); top: 0; background-color: var(--sidebar-bg); min-width: 160px; z-index: 1050;"
+            :style="{ position: 'fixed', left: 'var(--sidebar-collapsed-width)', top: menuPositions.academic.top, bottom: menuPositions.academic.bottom, backgroundColor: 'var(--sidebar-bg)', minWidth: '160px', zIndex: 1050 }"
           >
             <li>
               <router-link to="/academic/classes" class="nav-link" active-class="active" @click="expandedMenus.academic = false">
@@ -216,12 +214,74 @@
           </router-link>
         </li>
 
-        <!-- Settings -->
-        <li class="nav-item">
-          <router-link to="/settings" class="nav-link" active-class="active">
+        <!-- Settings Dropdown -->
+        <li class="nav-item-dropdown position-relative">
+          <a 
+            class="nav-link d-flex align-items-center" 
+            href="#" 
+            @click.prevent="toggleSubmenu('settings', $event)"
+            :class="{ 'active': isSubmenuActive('settings') }"
+          >
             <i class="bi-gear-fill"></i>
             <span class="menu-item-text">Settings</span>
-          </router-link>
+            <i 
+              v-if="!isCollapsed"
+              class="bi small menu-dropdown-arrow transition-transform ms-auto" 
+              :class="expandedMenus.settings ? 'bi-chevron-down' : 'bi-chevron-right'"
+            ></i>
+          </a>
+          <!-- Nested Dropdown Menus (when sidebar is expanded) -->
+          <ul 
+            v-if="!isCollapsed"
+            v-show="expandedMenus.settings" 
+            class="dropdown-submenu"
+          >
+            <li>
+              <router-link to="/settings/general" class="nav-link" active-class="active">
+                <i class="bi-building-fill"></i>
+                General Settings
+              </router-link>
+            </li>
+            <li>
+              <router-link to="/settings/system" class="nav-link" active-class="active">
+                <i class="bi-sliders"></i>
+                System Settings
+              </router-link>
+            </li>
+            <li>
+              <router-link to="/settings/users" class="nav-link" active-class="active">
+                <i class="bi-people-fill"></i>
+                User Management
+              </router-link>
+            </li>
+          </ul>
+
+          <!-- Floating Dropdown Menu (when sidebar is collapsed) -->
+          <ul 
+            v-else
+            class="dropdown-menu shadow-lg py-2" 
+            :class="{ show: expandedMenus.settings }"
+            :style="{ position: 'fixed', left: 'var(--sidebar-collapsed-width)', top: menuPositions.settings.top, bottom: menuPositions.settings.bottom, backgroundColor: 'var(--sidebar-bg)', minWidth: '175px', zIndex: 1050 }"
+          >
+            <li>
+              <router-link to="/settings/general" class="nav-link" active-class="active" @click="expandedMenus.settings = false">
+                <i class="bi-building-fill"></i>
+                <span>General Settings</span>
+              </router-link>
+            </li>
+            <li>
+              <router-link to="/settings/system" class="nav-link" active-class="active" @click="expandedMenus.settings = false">
+                <i class="bi-sliders"></i>
+                <span>System Settings</span>
+              </router-link>
+            </li>
+            <li>
+              <router-link to="/settings/users" class="nav-link" active-class="active" @click="expandedMenus.settings = false">
+                <i class="bi-people-fill"></i>
+                <span>User Management</span>
+              </router-link>
+            </li>
+          </ul>
         </li>
       </ul>
     </div>
@@ -246,30 +306,99 @@ export default {
     const isCollapsed = computed(() => appStore.sidebarCollapsed);
 
     const expandedMenus = ref({
-      academic: false
+      academic: false,
+      settings: false
     });
 
     const toggleSidebar = () => {
       appStore.toggleSidebar();
     };
 
-    const toggleSubmenu = (menu) => {
+    const menuPositions = ref({
+      academic: { top: 'auto', bottom: 'auto' },
+      settings: { top: 'auto', bottom: 'auto' }
+    });
+
+    const toggleSubmenu = (menu, event) => {
+      // Close sibling floating menu
+      if (menu === 'academic') {
+        expandedMenus.value.settings = false;
+      } else {
+        expandedMenus.value.academic = false;
+      }
+
       expandedMenus.value[menu] = !expandedMenus.value[menu];
+
+      if (expandedMenus.value[menu] && isCollapsed.value && event) {
+        const rect = event.currentTarget.getBoundingClientRect();
+        const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+        
+        // Calculate if there is enough space below the item
+        // Assume max dropdown height is around 250px
+        const spaceBelow = viewportHeight - rect.bottom;
+        
+        if (spaceBelow < 250) {
+          // Render upwards, aligning the bottom of the menu with the bottom of the anchor
+          menuPositions.value[menu] = {
+            top: 'auto',
+            bottom: `${viewportHeight - rect.bottom}px`
+          };
+        } else {
+          // Render downwards, aligning the top of the menu with the top of the anchor
+          menuPositions.value[menu] = {
+            top: `${rect.top}px`,
+            bottom: 'auto'
+          };
+        }
+      }
     };
 
     const isSubmenuActive = (menu) => {
       if (menu === 'academic') {
         return route.path.startsWith('/academic/');
       }
+      if (menu === 'settings') {
+        return route.path.startsWith('/settings/');
+      }
       return false;
     };
 
-    // Auto-expand submenu if active route is nested inside
+    // Auto-expand/collapse submenus based on active route, and auto-collapse on mobile
     watch(() => route.path, (newPath) => {
-      if (newPath.startsWith('/academic/')) {
+      // Academic Submenu
+      if (!isCollapsed.value && newPath.startsWith('/academic/')) {
         expandedMenus.value.academic = true;
+      } else {
+        expandedMenus.value.academic = false;
+      }
+
+      // Settings Submenu
+      if (!isCollapsed.value && newPath.startsWith('/settings/')) {
+        expandedMenus.value.settings = true;
+      } else {
+        expandedMenus.value.settings = false;
+      }
+      
+      // Auto-collapse sidebar on mobile/tablet viewports after navigation
+      if (typeof window !== 'undefined' && window.innerWidth < 992) {
+        appStore.setSidebarCollapsed(true);
       }
     }, { immediate: true });
+
+    // Watch collapsed state to close submenu
+    watch(isCollapsed, (collapsed) => {
+      if (collapsed) {
+        expandedMenus.value.academic = false;
+        expandedMenus.value.settings = false;
+      }
+    });
+
+    const closeFloatingMenus = () => {
+      if (isCollapsed.value) {
+        expandedMenus.value.academic = false;
+        expandedMenus.value.settings = false;
+      }
+    };
 
     return {
       isCollapsed,
@@ -277,7 +406,9 @@ export default {
       expandedMenus,
       toggleSidebar,
       toggleSubmenu,
-      isSubmenuActive
+      isSubmenuActive,
+      closeFloatingMenus,
+      menuPositions
     };
   }
 }

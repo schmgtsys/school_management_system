@@ -28,12 +28,54 @@
               <Badge variant="success">Active</Badge>
             </template>
             <template #actions="{ item }">
-              <button class="btn btn-sm btn-light border" @click="showMockMsg"><i class="bi-pencil-fill text-primary"></i></button>
+              <button class="btn btn-sm btn-light border me-1" @click="viewStaffDetails(item)">
+                <i class="bi-eye-fill text-info"></i>
+              </button>
+              <button class="btn btn-sm btn-light border me-1" @click="showMockMsg">
+                <i class="bi-pencil-fill text-primary"></i>
+              </button>
+              <button class="btn btn-sm btn-light border" @click="showMockMsg">
+                <i class="bi-trash-fill text-danger"></i>
+              </button>
             </template>
           </DataTable>
         </Card>
       </div>
     </div>
+
+    <!-- View Staff Details Modal -->
+    <Modal v-model="showViewModal" title="Staff Profile Details" @close="showViewModal = false">
+      <div v-if="selectedStaff" class="text-dark">
+        <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+          <Avatar :name="selectedStaff.name" size="64" variant="info" />
+          <div>
+            <h5 class="fw-bold mb-1">{{ selectedStaff.name }}</h5>
+            <span class="badge bg-info-subtle text-info border border-info">Support Staff Faculty</span>
+          </div>
+        </div>
+        <div class="row g-3">
+          <div class="col-6">
+            <span class="text-secondary small fw-medium d-block">System Duty / Role</span>
+            <span class="fw-semibold">{{ selectedStaff.role }}</span>
+          </div>
+          <div class="col-6">
+            <span class="text-secondary small fw-medium d-block">Department Group</span>
+            <span class="fw-semibold">{{ selectedStaff.department }}</span>
+          </div>
+          <div class="col-6">
+            <span class="text-secondary small fw-medium d-block">Contact Phone</span>
+            <span class="fw-semibold font-monospace">{{ selectedStaff.phone }}</span>
+          </div>
+          <div class="col-6">
+            <span class="text-secondary small fw-medium d-block">Primary Email</span>
+            <span class="fw-semibold">{{ selectedStaff.email }}</span>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <Button variant="secondary" size="sm" @click="showViewModal = false">Close Profile</Button>
+      </template>
+    </Modal>
   </div>
 </template>
 
@@ -45,12 +87,16 @@ import DataTable from '../components/DataTable.vue';
 import Avatar from '../components/Avatar.vue';
 import Badge from '../components/Badge.vue';
 import Button from '../components/Button.vue';
+import Modal from '../components/Modal.vue';
 
 export default {
   name: 'Staff',
-  components: { PageHeader, Card, DataTable, Avatar, Badge, Button },
+  components: { PageHeader, Card, DataTable, Avatar, Badge, Button, Modal },
   setup() {
     const loading = ref(false);
+    const showViewModal = ref(false);
+    const selectedStaff = ref(null);
+
     const columns = [
       { key: 'name', label: 'Staff Member', sortable: true },
       { key: 'role', label: 'Role/Duty' },
@@ -65,9 +111,14 @@ export default {
       { id: 3, name: 'Phlox Smith', email: 'dr.phlox@sms.edu', role: 'Campus Nurse', department: 'Medical Support', phone: '+1 555-0177' }
     ]);
 
+    const viewStaffDetails = (s) => {
+      selectedStaff.value = s;
+      showViewModal.value = true;
+    };
+
     const showMockMsg = () => alert('Action simulated (UI Only).');
 
-    return { loading, columns, staff, showMockMsg };
+    return { loading, columns, staff, showMockMsg, showViewModal, selectedStaff, viewStaffDetails };
   }
 }
 </script>

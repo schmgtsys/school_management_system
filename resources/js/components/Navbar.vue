@@ -16,7 +16,7 @@
       </div>
 
       <!-- Right side: Actions & Controls -->
-      <div class="d-flex align-items-center gap-3">
+      <div class="d-flex align-items-center gap-1 gap-sm-2 gap-md-3">
         <!-- Search bar -->
         <div class="d-none d-sm-block">
           <SearchBar placeholder="Search students, staff..." />

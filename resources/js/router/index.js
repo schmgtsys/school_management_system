@@ -78,8 +78,25 @@ const routes = [
             },
             {
                 path: 'settings',
-                name: 'Settings',
+                redirect: '/settings/general'
+            },
+            {
+                path: 'settings/system',
+                name: 'SystemSettings',
                 component: () => import('../pages/Settings.vue'),
+                props: { defaultTab: 'system' }
+            },
+            {
+                path: 'settings/users',
+                name: 'UserSettings',
+                component: () => import('../pages/Settings.vue'),
+                props: { defaultTab: 'users' }
+            },
+            {
+                path: 'settings/general',
+                name: 'GeneralSettings',
+                component: () => import('../pages/Settings.vue'),
+                props: { defaultTab: 'general' }
             },
         ],
     },

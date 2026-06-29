@@ -9,9 +9,9 @@
     </div>
     
     <ul 
-      class="dropdown-menu border-0 shadow-sm" 
+      class="dropdown-menu" 
       :class="[{ show: isOpen }, alignClass]"
-      style="margin-top: 5px; z-index: 1040;"
+      :style="dropdownStyle"
     >
       <slot></slot>
     </ul>
@@ -56,11 +56,21 @@ export default {
       return props.align === 'end' ? 'dropdown-menu-end' : '';
     });
 
+    const dropdownStyle = computed(() => {
+      const style = { marginTop: '5px', zIndex: 1040 };
+      if (props.align === 'end') {
+        style.right = '0';
+        style.left = 'auto';
+      }
+      return style;
+    });
+
     return {
       isOpen,
       toggle,
       close,
-      alignClass
+      alignClass,
+      dropdownStyle
     };
   }
 }
