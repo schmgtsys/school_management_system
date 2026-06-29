@@ -94,6 +94,11 @@ body {
 
     &.collapsed {
         width: var(--sidebar-collapsed-width);
+        overflow: visible !important;
+
+        .sidebar-menu {
+            overflow: visible !important;
+        }
 
         .sidebar-brand-text,
         .menu-item-text,
@@ -103,16 +108,72 @@ body {
             display: none !important;
         }
 
+        .sidebar-header {
+            padding: 0;
+            justify-content: center;
+            
+            button {
+                display: none !important;
+            }
+            
+            .d-flex {
+                justify-content: center;
+                width: 100%;
+                gap: 0 !important;
+            }
+        }
+
+        .sidebar-user {
+            padding: 1rem 0;
+            
+            .d-flex {
+                justify-content: center;
+                gap: 0 !important;
+            }
+            
+            .position-relative {
+                flex-shrink: 0;
+            }
+        }
+
         .nav-link {
             text-align: center;
             justify-content: center;
             padding: 0.75rem 0;
+            gap: 0 !important;
         }
         
         .nav-item-dropdown .dropdown-menu {
             position: absolute;
             left: var(--sidebar-collapsed-width);
             top: 0;
+            
+            .nav-link {
+                text-align: left !important;
+                justify-content: flex-start !important;
+                padding: 0.5rem 1.25rem !important;
+                gap: 0.75rem !important;
+                color: rgba(255, 255, 255, 0.7) !important;
+                
+                &:hover {
+                    color: #fff !important;
+                    background-color: var(--sidebar-hover-bg) !important;
+                }
+                
+                &.active {
+                    color: #fff !important;
+                    background-color: var(--sidebar-active-bg) !important;
+                }
+                
+                i {
+                    min-width: 18px !important;
+                    font-size: 1rem !important;
+                }
+
+                span {
+                    display: inline-block !important;
+                }
+            }
         }
     }
 }

@@ -10,13 +10,6 @@
         >
           <i class="bi-list fs-5"></i>
         </button>
-        <button 
-          @click="toggleSidebar" 
-          class="btn btn-light d-none d-lg-block shadow-none border-0 rounded-circle"
-          style="width: 40px; height: 40px;"
-        >
-          <i class="bi" :class="isCollapsed ? 'bi-text-indent-left' : 'bi-text-indent-right'"></i >
-        </button>
         
         <!-- Breadcrumb component integration -->
         <Breadcrumb class="d-none d-md-block mb-0" />

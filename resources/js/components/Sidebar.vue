@@ -2,7 +2,12 @@
   <aside class="app-sidebar" :class="{ 'collapsed': isCollapsed }">
     <!-- Sidebar Header -->
     <div class="sidebar-header d-flex align-items-center justify-content-between">
-      <div class="d-flex align-items-center gap-2 overflow-hidden">
+      <div 
+        class="d-flex align-items-center gap-2 overflow-hidden" 
+        :class="{ 'cursor-pointer': isCollapsed }"
+        @click="isCollapsed ? toggleSidebar() : null"
+        :title="isCollapsed ? 'Expand Sidebar' : ''"
+      >
         <div class="bg-primary text-white rounded-3 p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; min-width: 40px;">
           <i class="bi-mortarboard-fill fs-4"></i>
         </div>
@@ -11,7 +16,7 @@
         </div>
       </div>
       <!-- Toggle button inside sidebar (visible on desktop) -->
-      <button @click="toggleSidebar" class="btn btn-link text-white text-opacity-75 p-0 d-none d-lg-block border-0 shadow-none">
+      <button v-if="!isCollapsed" @click="toggleSidebar" class="btn btn-link text-white text-opacity-75 p-0 d-none d-lg-block border-0 shadow-none">
         <i class="bi" :class="isCollapsed ? 'bi-text-indent-left' : 'bi-text-indent-right'" style="font-size: 1.25rem;"></i>
       </button>
     </div>
@@ -80,26 +85,25 @@
         </li>
 
         <!-- Academic & Classes Dropdown -->
-        <li class="nav-item-dropdown">
+        <li class="nav-item-dropdown position-relative">
           <a 
-            class="nav-link d-flex align-items-center justify-content-between" 
+            class="nav-link d-flex align-items-center" 
             href="#" 
             @click.prevent="toggleSubmenu('academic')"
             :class="{ 'active': isSubmenuActive('academic') }"
           >
-            <div class="d-flex align-items-center gap-3">
-              <i class="bi-journal-bookmark-fill"></i>
-              <span class="menu-item-text">Academic</span>
-            </div>
+            <i class="bi-journal-bookmark-fill"></i>
+            <span class="menu-item-text">Academic</span>
             <i 
               v-if="!isCollapsed"
-              class="bi small menu-dropdown-arrow transition-transform" 
+              class="bi small menu-dropdown-arrow transition-transform ms-auto" 
               :class="expandedMenus.academic ? 'bi-chevron-down' : 'bi-chevron-right'"
             ></i>
           </a>
-          <!-- Nested Dropdown Menus -->
+          <!-- Nested Dropdown Menus (when sidebar is expanded) -->
           <ul 
-            v-show="expandedMenus.academic && !isCollapsed" 
+            v-if="!isCollapsed"
+            v-show="expandedMenus.academic" 
             class="dropdown-submenu"
           >
             <li>
@@ -130,6 +134,45 @@
               <router-link to="/academic/grades" class="nav-link" active-class="active">
                 <i class="bi-award-fill"></i>
                 Grades
+              </router-link>
+            </li>
+          </ul>
+
+          <!-- Floating Dropdown Menu (when sidebar is collapsed) -->
+          <ul 
+            v-else
+            class="dropdown-menu border-0 shadow-lg py-2" 
+            :class="{ show: expandedMenus.academic }"
+            style="position: absolute; left: var(--sidebar-collapsed-width); top: 0; background-color: var(--sidebar-bg); min-width: 160px; z-index: 1050;"
+          >
+            <li>
+              <router-link to="/academic/classes" class="nav-link" active-class="active" @click="expandedMenus.academic = false">
+                <i class="bi-door-closed-fill"></i>
+                <span>Classes</span>
+              </router-link>
+            </li>
+            <li>
+              <router-link to="/academic/subjects" class="nav-link" active-class="active" @click="expandedMenus.academic = false">
+                <i class="bi-journal-text"></i>
+                <span>Subjects</span>
+              </router-link>
+            </li>
+            <li>
+              <router-link to="/academic/attendance" class="nav-link" active-class="active" @click="expandedMenus.academic = false">
+                <i class="bi-calendar-check-fill"></i>
+                <span>Attendance</span>
+              </router-link>
+            </li>
+            <li>
+              <router-link to="/academic/examinations" class="nav-link" active-class="active" @click="expandedMenus.academic = false">
+                <i class="bi-patch-question-fill"></i>
+                <span>Examinations</span>
+              </router-link>
+            </li>
+            <li>
+              <router-link to="/academic/grades" class="nav-link" active-class="active" @click="expandedMenus.academic = false">
+                <i class="bi-award-fill"></i>
+                <span>Grades</span>
               </router-link>
             </li>
           </ul>
@@ -211,9 +254,6 @@ export default {
     };
 
     const toggleSubmenu = (menu) => {
-      if (isCollapsed.value) {
-        appStore.setSidebarCollapsed(false);
-      }
       expandedMenus.value[menu] = !expandedMenus.value[menu];
     };
 
